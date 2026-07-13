@@ -70,6 +70,34 @@ INSERT INTO departamento (nombre_departamento) VALUES
     ('RRHH'),
     ('Contabilidad');
 
+INSERT INTO empleados (
+    id_empleado,
+    nombre_completo,
+    numero_documento,
+    cargo_id,
+    departamento_id,
+    fecha_ingreso,
+    salario_base,
+    estado,
+    correo,
+    telefono,
+    foto_ruta,
+    password_hash
+) VALUES (
+    3,
+    'Isaac Blanco',
+    '123456',
+    2,
+    3,
+    '2026-08-06',
+    1000.00,
+    'activo',
+    'dona@gmail.com1',
+    '3125519428',
+    NULL,
+    '$2y$10$YVfugIsX6JHvPMCV1Co5SOGupHJwg3FRGQlW9Wt800OdS5WvlQoXO'
+);
+
 -- ============================================
 -- Notas de diseño
 -- ============================================

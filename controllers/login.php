@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $empleado = Empleado::getByDocumento($numero_documento);
 
         if ($empleado) {
+            
             // Verificar estado activo
             if ($empleado['estado'] !== 'activo') {
                 header("Location: ../views/login.php?error=" . urlencode("El usuario está inactivo."));

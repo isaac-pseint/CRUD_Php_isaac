@@ -73,7 +73,7 @@ try {
 
                         <div class="form-group">
                             <label for="password">Contraseña *</label>
-                            <input type="password" id="password" name="password" minlength="6" required>
+                            <input type="password" id="password" name="password" >
                         </div>
 
                         <div class="form-group">
@@ -107,12 +107,12 @@ try {
 
                         <div class="form-group">
                             <label for="fecha_ingreso">Fecha de Ingreso *</label>
-                            <input type="date" id="fecha_ingreso" name="fecha_ingreso" required>
+                            <input type="date" id="fecha_ingreso" name="fecha_ingreso" >
                         </div>
 
                         <div class="form-group">
                             <label for="salario_base">Salario Base *</label>
-                            <input type="number" step="0.01" min="0" id="salario_base" name="salario_base" required>
+                            <input type="number" step="0.01" min="0" id="salario_base" name="salario_base" >
                         </div>
                     </div>
 
