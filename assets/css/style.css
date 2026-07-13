@@ -1,0 +1,255 @@
+/* 
+ * ServiPlus S.A. - Estilos Globales
+ * Diseño premium, moderno y responsive
+ */
+
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --secondary-color: #10b981;
+    --secondary-hover: #059669;
+    --danger-color: #ef4444;
+    --danger-hover: #dc2626;
+    --bg-color: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Layout */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+header {
+    background-color: var(--card-bg);
+    padding: 1.5rem 2rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-radius: var(--radius-md);
+}
+
+h1, h2, h3 {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+h1 {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Forms */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+input, select {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: #fff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: var(--transition);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: var(--danger-hover);
+    transform: translateY(-1px);
+}
+
+/* Tables */
+.table-responsive {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    background: var(--card-bg);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th, td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: #f8fafc;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background-color: #f1f5f9;
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-activo {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.badge-inactivo {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.mt-2 { margin-top: 1rem; }
+.mt-4 { margin-top: 2rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+/* Alerts */
+.alert {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+.alert-error {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+.alert-success {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
