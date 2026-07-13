@@ -2,18 +2,15 @@
 /**
  * Vista: Listado de Empleados
  * Módulo: Empleados (Prioridad 1)
- * Dependencias: config/conexion.php
- * Descripción: Muestra en una tabla HTML los empleados cuyo estado es 'Activo'.
+ * Dependencias: models/Empleado.php
+ * Descripción: Muestra en una tabla HTML los empleados cuyo estado es 'activo'.
  */
 
-require_once '../config/conexion.php';
+require_once __DIR__ . '/../models/Empleado.php';
 
 try {
-    // Consulta para obtener solo empleados activos (Prioridad 1)
-    $sql = "SELECT * FROM empleados WHERE estado = 'Activo' ORDER BY id DESC";
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute();
-    $empleados = $stmt->fetchAll();
+    // Obtener solo empleados activos usando el modelo
+    $empleados = Empleado::getAllActivos();
 } catch (PDOException $e) {
     error_log("Error al consultar empleados: " . $e->getMessage());
     $error_bd = "Ocurrió un error al cargar la lista de empleados.";
@@ -46,6 +43,12 @@ try {
                     </div>
                 <?php endif; ?>
 
+                <?php if (isset($_GET['error'])): ?>
+                    <div class="alert alert-error">
+                        <?= htmlspecialchars($_GET['error']) ?>
+                    </div>
+                <?php endif; ?>
+
                 <?php if (isset($error_bd)): ?>
                     <div class="alert alert-error">
                         <?= htmlspecialchars($error_bd) ?>
@@ -59,7 +62,7 @@ try {
                                 <th>Nombre</th>
                                 <th>Documento</th>
                                 <th>Cargo</th>
-                                <th>Área</th>
+                                <th>Departamento</th>
                                 <th>Fecha Ingreso</th>
                                 <th>Teléfono</th>
                                 <th>Acciones</th>
@@ -71,15 +74,15 @@ try {
                                     <tr>
                                         <td><?= htmlspecialchars($emp['nombre_completo']) ?></td>
                                         <td><?= htmlspecialchars($emp['numero_documento']) ?></td>
-                                        <td><?= htmlspecialchars($emp['cargo']) ?></td>
-                                        <td><?= htmlspecialchars($emp['area']) ?></td>
+                                        <td><?= htmlspecialchars($emp['nombre_cargo']) ?></td>
+                                        <td><?= htmlspecialchars($emp['nombre_departamento']) ?></td>
                                         <td><?= htmlspecialchars($emp['fecha_ingreso']) ?></td>
                                         <td><?= htmlspecialchars($emp['telefono']) ?></td>
                                         <td class="actions">
-                                            <a href="formulario_editar.php?id=<?= urlencode($emp['id']) ?>" class="btn btn-secondary btn-sm">Editar</a>
+                                            <a href="formulario_editar.php?id=<?= urlencode($emp['id_empleado']) ?>" class="btn btn-secondary btn-sm">Editar</a>
                                             <!-- Botón eliminar mediante formulario POST para mayor seguridad -->
                                             <form action="../controllers/eliminar_empleado.php" method="POST" style="display:inline;" onsubmit="return confirm('¿Está seguro de eliminar este empleado?');">
-                                                <input type="hidden" name="id" value="<?= htmlspecialchars($emp['id']) ?>">
+                                                <input type="hidden" name="id_empleado" value="<?= htmlspecialchars($emp['id_empleado']) ?>">
                                                 <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                             </form>
                                         </td>

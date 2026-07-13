@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/Conexion.php';
+require_once __DIR__ . '/../config/conexion.php';
 
 /**
  * Clase Empleado
@@ -65,6 +65,23 @@ class Empleado {
                 FROM empleados e
                 INNER JOIN cargo c ON e.cargo_id = c.id_cargo
                 INNER JOIN departamento d ON e.departamento_id = d.id_departamento
+                ORDER BY e.nombre_completo ASC";
+        $stmt = $db->query($sql);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Obtener todos los empleados activos, incluyendo nombres de cargo y departamento
+     * 
+     * @return array
+     */
+    public static function getAllActivos() {
+        $db = Conexion::conectar();
+        $sql = "SELECT e.*, c.nombre_cargo, d.nombre_departamento 
+                FROM empleados e
+                INNER JOIN cargo c ON e.cargo_id = c.id_cargo
+                INNER JOIN departamento d ON e.departamento_id = d.id_departamento
+                WHERE e.estado = 'activo'
                 ORDER BY e.nombre_completo ASC";
         $stmt = $db->query($sql);
         return $stmt->fetchAll();

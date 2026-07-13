@@ -7,9 +7,9 @@
 
 **Objetivo:** Establecer la arquitectura base y digitalizar el registro de empleados (reemplazar hojas de cálculo).
 
-- [ ] Crear estructura de carpetas del proyecto: `config/`, `controllers/`, `models/`, `views/`, `assets/`, `libs/`
-- [ ] Implementar `config/conexion.php` (o `models/MySQL.php`) para centralizar la conexión a la base de datos MySQL
-- [ ] Crear tabla `empleados` con los campos:
+- [*ø] Crear estructura de carpetas del proyecto: `config/`, `controllers/`, `models/`, `views/`, `assets/`, `libs/`
+- [*] Implementar `config/conexion.php` (o `models/MySQL.php`) para centralizar la conexión a la base de datos MySQL
+- [*] Crear tabla `empleados` con los campos:
   - ID (autogenerado)
   - Nombre completo
   - Número de documento (**único**)
