@@ -8,6 +8,8 @@
  */
 
 require_once __DIR__ . '/../models/Empleado.php';
+require_once __DIR__ . '/../config/verificar_permisos.php';
+verificarPermisoAdministrador();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id               = (int)($_POST['id_empleado'] ?? 0);

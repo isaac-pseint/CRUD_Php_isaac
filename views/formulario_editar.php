@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../config/verificar_sesion.php';
+require_once __DIR__ . '/../config/verificar_permisos.php';
+verificarPermisoAdministrador();
 /**
  * Vista: Formulario de Edición de Empleado
  * Módulo: Empleados (Prioridad 1)

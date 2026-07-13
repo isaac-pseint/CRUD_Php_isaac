@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../config/verificar_sesion.php';
+require_once __DIR__ . '/../config/verificar_permisos.php';
+$es_admin = esAdministrador($_SESSION['cargo_id'] ?? 0);
 /**
  * Vista: Listado de Empleados
  * Módulo: Empleados (Prioridad 1)
@@ -30,7 +33,13 @@ try {
     <div class="container">
         <header>
             <h1>ServiPlus S.A.</h1>
-            <a href="formulario_crear.php" class="btn btn-primary">Registrar Empleado</a>
+            <div>
+                <span style="margin-right: 15px;">Hola, <strong><?= htmlspecialchars($_SESSION['nombre_completo']) ?></strong></span>
+                <?php if ($es_admin): ?>
+                    <a href="formulario_crear.php" class="btn btn-primary">Registrar Empleado</a>
+                <?php endif; ?>
+                <a href="../controllers/logout.php" class="btn btn-secondary" style="margin-left: 10px;">Cerrar sesión</a>
+            </div>
         </header>
 
         <main>
@@ -65,7 +74,9 @@ try {
                                 <th>Departamento</th>
                                 <th>Fecha Ingreso</th>
                                 <th>Teléfono</th>
-                                <th>Acciones</th>
+                                <?php if ($es_admin): ?>
+                                    <th>Acciones</th>
+                                <?php endif; ?>
                             </tr>
                         </thead>
                         <tbody>
@@ -78,14 +89,16 @@ try {
                                         <td><?= htmlspecialchars($emp['nombre_departamento']) ?></td>
                                         <td><?= htmlspecialchars($emp['fecha_ingreso']) ?></td>
                                         <td><?= htmlspecialchars($emp['telefono']) ?></td>
-                                        <td class="actions">
-                                            <a href="formulario_editar.php?id=<?= urlencode($emp['id_empleado']) ?>" class="btn btn-secondary btn-sm">Editar</a>
-                                            <!-- Botón eliminar mediante formulario POST para mayor seguridad -->
-                                            <form action="../controllers/eliminar_empleado.php" method="POST" style="display:inline;" onsubmit="return confirm('¿Está seguro de eliminar este empleado?');">
-                                                <input type="hidden" name="id_empleado" value="<?= htmlspecialchars($emp['id_empleado']) ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                                            </form>
-                                        </td>
+                                        <?php if ($es_admin): ?>
+                                            <td class="actions">
+                                                <a href="formulario_editar.php?id=<?= urlencode($emp['id_empleado']) ?>" class="btn btn-secondary btn-sm">Editar</a>
+                                                <!-- Botón eliminar mediante formulario POST para mayor seguridad -->
+                                                <form action="../controllers/eliminar_empleado.php" method="POST" style="display:inline;" onsubmit="return confirm('¿Está seguro de eliminar este empleado?');">
+                                                    <input type="hidden" name="id_empleado" value="<?= htmlspecialchars($emp['id_empleado']) ?>">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                                </form>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>

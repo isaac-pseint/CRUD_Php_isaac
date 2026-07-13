@@ -9,6 +9,8 @@
 
 // Incluir los modelos necesarios
 require_once __DIR__ . '/../models/Empleado.php';
+require_once __DIR__ . '/../config/verificar_permisos.php';
+verificarPermisoAdministrador();
 
 // Verificar que la solicitud sea POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -22,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $departamento_id  = (int)($_POST['departamento_id'] ?? 0);
     $fecha_ingreso    = $_POST['fecha_ingreso'] ?? '';
     $salario_base     = (float)($_POST['salario_base'] ?? 0);
+    $password         = $_POST['password'] ?? '';
 
     // ── Validaciones de backend ──────────────────────────────────
     $errores = [];
@@ -31,6 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($numero_documento === '') {
         $errores[] = "El número de documento es obligatorio.";
+    }
+    if (strlen($password) < 6) {
+        $errores[] = "La contraseña debe tener al menos 6 caracteres.";
     }
     if ($correo === '' || !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
         $errores[] = "Debe ingresar un correo electrónico válido.";
@@ -73,6 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $empleado->setDepartamentoId($departamento_id);
         $empleado->setFechaIngreso($fecha_ingreso);
         $empleado->setSalarioBase($salario_base);
+        
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $empleado->setPasswordHash($password_hash);
         // estado por defecto ya es 'activo' en el constructor
 
         $empleado->guardar();

@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../config/verificar_sesion.php';
+require_once __DIR__ . '/../config/verificar_permisos.php';
+verificarPermisoAdministrador();
 /**
  * Vista: Formulario de Creación de Empleado
  * Módulo: Empleados (Prioridad 1)
@@ -66,6 +69,11 @@ try {
                         <div class="form-group">
                             <label for="correo">Correo Electrónico *</label>
                             <input type="email" id="correo" name="correo" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Contraseña *</label>
+                            <input type="password" id="password" name="password" minlength="6" required>
                         </div>
 
                         <div class="form-group">
