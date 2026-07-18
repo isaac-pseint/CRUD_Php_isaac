@@ -2,46 +2,120 @@
 /**
  * Controlador: Crear Empleado
  * Módulo: Empleados (Prioridad 1)
- * Dependencias: config/conexion.php
- * Descripción: Recibe los datos del formulario (POST), y realiza la inserción en la base de datos usando consultas preparadas.
+ * Dependencias: models/Empleado.php, models/Cargo.php, models/Departamento.php
+ * Descripción: Recibe los datos del formulario (POST), valida y realiza la inserción
+ *              en la base de datos usando el modelo Empleado.
  */
 
-// Incluir la conexión a la base de datos
-require_once '../config/conexion.php';
+// Incluir los modelos necesarios
+require_once __DIR__ . '/../models/Empleado.php';
+require_once __DIR__ . '/../config/verificar_permisos.php';
+verificarPermisoAdministrador();
 
 // Verificar que la solicitud sea POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // Obtener los datos enviados por el formulario (Prioridad 1: asignación directa, sanitización fina va en Prioridad 2)
-    $nombre_completo = $_POST['nombre_completo'] ?? '';
-    $numero_documento = $_POST['numero_documento'] ?? '';
-    $correo = $_POST['correo'] ?? '';
-    $telefono = $_POST['telefono'] ?? '';
-    $cargo = $_POST['cargo'] ?? '';
-    $area = $_POST['area'] ?? '';
-    $fecha_ingreso = $_POST['fecha_ingreso'] ?? '';
-    $salario_base = $_POST['salario_base'] ?? 0;
+    // Obtener y sanitizar los datos enviados por el formulario
+    $nombre_completo  = trim($_POST['nombre_completo'] ?? '');
+    $numero_documento = trim($_POST['numero_documento'] ?? '');
+    $correo           = trim(strtolower($_POST['correo'] ?? ''));
+    $telefono         = trim($_POST['telefono'] ?? '');
+    $cargo_id         = (int)($_POST['cargo_id'] ?? 0);
+    $departamento_id  = (int)($_POST['departamento_id'] ?? 0);
+    $fecha_ingreso    = $_POST['fecha_ingreso'] ?? '';
+    $salario_base     = (float)($_POST['salario_base'] ?? 0);
+    $password         = $_POST['password'] ?? '';
 
+    // ── Validaciones de backend ──────────────────────────────────
+    $errores = [];
+
+    if ($nombre_completo === '') {
+        $errores[] = "El nombre completo es obligatorio.";
+    }
+    if ($numero_documento === '') {
+        $errores[] = "El número de documento es obligatorio.";
+    }
+    if (strlen($password) < 6) {
+        $errores[] = "La contraseña debe tener al menos 6 caracteres.";
+    }
+    if ($correo === '' || !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+        $errores[] = "Debe ingresar un correo electrónico válido.";
+    }
+    if ($cargo_id <= 0) {
+        $errores[] = "Debe seleccionar un cargo válido.";
+    }
+    if ($departamento_id <= 0) {
+        $errores[] = "Debe seleccionar un departamento válido.";
+    }
+    if ($fecha_ingreso === '') {
+        $errores[] = "La fecha de ingreso es obligatoria.";
+    }
+    if ($salario_base < 0) {
+        $errores[] = "El salario no puede ser negativo.";
+    }
+
+    // Verificar unicidad de documento y correo antes de insertar
+    if (empty($errores) && Empleado::documentoExiste($numero_documento)) {
+        $errores[] = "El número de documento ya está registrado.";
+    }
+    if (empty($errores) && Empleado::correoExiste($correo)) {
+        $errores[] = "El correo electrónico ya está registrado.";
+    }
+
+    // Procesar fotografía
+    $foto_ruta = null;
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK && empty($errores)) {
+        $tmp_name = $_FILES['foto']['tmp_name'];
+        $file_name = $_FILES['foto']['name'];
+        
+        $mime = mime_content_type($tmp_name);
+        $allowed_mimes = ['image/jpeg', 'image/png', 'image/jpg'];
+        
+        if (!in_array($mime, $allowed_mimes)) {
+            $errores[] = "Formato de fotografía inválido. Solo se permiten .jpg, .jpeg y .png.";
+        } else {
+            $ext = pathinfo($file_name, PATHINFO_EXTENSION);
+            $nombre_unico = date("His") . round(microtime(true) * 1000) . "." . $ext;
+            $directorio = __DIR__ . '/../assets/fotos_empleados/';
+            if (!is_dir($directorio)) {
+                mkdir($directorio, 0777, true);
+            }
+            $ruta_destino = $directorio . $nombre_unico;
+            
+            if (move_uploaded_file($tmp_name, $ruta_destino)) {
+                $foto_ruta = 'assets/fotos_empleados/' . $nombre_unico;
+            } else {
+                $errores[] = "Error al subir la fotografía.";
+            }
+        }
+    }
+
+    // Si hay errores de validación, redirigir con el primer error
+    if (!empty($errores)) {
+        header("Location: ../views/formulario_crear.php?error=" . urlencode(implode(' ', $errores)));
+        exit;
+    }
+
+    // ── Guardar mediante el modelo ───────────────────────────────
     try {
-        // Preparar la consulta SQL usando placeholders (?) para evitar inyección SQL
-        // Nota: en esta fase, cargo y área son ENUM.
-        $sql = "INSERT INTO empleados 
-                (nombre_completo, numero_documento, cargo, area, fecha_ingreso, salario_base, correo, telefono) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $empleado = new Empleado();
+        $empleado->setNombreCompleto($nombre_completo);
+        $empleado->setNumeroDocumento($numero_documento);
+        $empleado->setCorreo($correo);
+        $empleado->setTelefono($telefono);
+        $empleado->setCargoId($cargo_id);
+        $empleado->setDepartamentoId($departamento_id);
+        $empleado->setFechaIngreso($fecha_ingreso);
+        $empleado->setSalarioBase($salario_base);
+        if ($foto_ruta) {
+            $empleado->setFotoRuta($foto_ruta);
+        }
         
-        $stmt = $conexion->prepare($sql);
-        
-        // Ejecutar la consulta pasando el array de valores en el mismo orden que los placeholders
-        $stmt->execute([
-            $nombre_completo,
-            $numero_documento,
-            $cargo,
-            $area,
-            $fecha_ingreso,
-            $salario_base,
-            $correo,
-            $telefono
-        ]);
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $empleado->setPasswordHash($password_hash);
+        // estado por defecto ya es 'activo' en el constructor
+
+        $empleado->guardar();
 
         // Redirigir a la vista de lista de empleados si todo sale bien
         header("Location: ../views/ver_empleados.php?success=creado");
@@ -51,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Registrar el error real en el log (invisible para el usuario)
         error_log("Error al crear empleado: " . $e->getMessage());
         
-        // Comprobar si el error es por duplicidad de número de documento o correo (Código SQLSTATE 23000)
+        // Comprobar si el error es por duplicidad (Código SQLSTATE 23000)
         if ($e->getCode() == 23000) {
             $mensaje = "El número de documento o el correo ya están registrados.";
         } else {

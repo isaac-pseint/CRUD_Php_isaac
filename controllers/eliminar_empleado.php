@@ -1,26 +1,27 @@
 <?php
 /**
- * Controlador: Eliminar Empleado
+ * Controlador: Eliminar Empleado (Borrado Lógico)
  * Módulo: Empleados (Prioridad 1)
- * Dependencias: config/conexion.php
- * Descripción: Realiza un borrado lógico del empleado cambiando su estado a 'Inactivo'.
+ * Dependencias: models/Empleado.php
+ * Descripción: Realiza un borrado lógico del empleado cambiando su estado a 'inactivo'
+ *              utilizando el modelo Empleado.
  */
 
-require_once '../config/conexion.php';
+require_once __DIR__ . '/../models/Empleado.php';
+require_once __DIR__ . '/../config/verificar_permisos.php';
+verificarPermisoAdministrador();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = $_POST['id'] ?? null;
+    $id = (int)($_POST['id_empleado'] ?? 0);
 
-    if (!$id) {
+    if ($id <= 0) {
         header("Location: ../views/ver_empleados.php?error=" . urlencode("ID de empleado no válido."));
         exit;
     }
 
     try {
-        // Borrado lógico: actualizar el estado a Inactivo en lugar de DELETE FROM
-        $sql = "UPDATE empleados SET estado = 'Inactivo' WHERE id = ?";
-        $stmt = $conexion->prepare($sql);
-        $stmt->execute([$id]);
+        // Borrado lógico: actualizar el estado a 'inactivo' usando el modelo
+        Empleado::desactivar($id);
 
         header("Location: ../views/ver_empleados.php?success=eliminado");
         exit;

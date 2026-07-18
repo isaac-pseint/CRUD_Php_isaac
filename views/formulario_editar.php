@@ -1,27 +1,30 @@
 <?php
+require_once __DIR__ . '/../config/verificar_sesion.php';
+require_once __DIR__ . '/../config/verificar_permisos.php';
+verificarPermisoAdministrador();
 /**
  * Vista: Formulario de Edición de Empleado
  * Módulo: Empleados (Prioridad 1)
- * Dependencias: config/conexion.php
+ * Dependencias: models/Empleado.php, models/Cargo.php, models/Departamento.php
  * Descripción: Muestra un formulario precargado con los datos de un empleado, para ser actualizado.
+ *              Carga cargos y departamentos dinámicamente desde la BD.
  */
 
-require_once '../config/conexion.php';
+require_once __DIR__ . '/../models/Empleado.php';
+require_once __DIR__ . '/../models/Cargo.php';
+require_once __DIR__ . '/../models/Departamento.php';
 
 // Obtener el ID del empleado desde GET
-$id = $_GET['id'] ?? null;
+$id = (int)($_GET['id'] ?? 0);
 
-if (!$id) {
+if ($id <= 0) {
     header("Location: ver_empleados.php");
     exit;
 }
 
 try {
-    // Consulta para obtener los datos del empleado (uso de consultas preparadas)
-    $sql = "SELECT * FROM empleados WHERE id = ? LIMIT 1";
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute([$id]);
-    $empleado = $stmt->fetch();
+    // Obtener datos del empleado usando el modelo
+    $empleado = Empleado::getById($id);
 
     if (!$empleado) {
         header("Location: ver_empleados.php?error=" . urlencode("Empleado no encontrado."));
@@ -31,6 +34,21 @@ try {
     error_log("Error al cargar empleado para editar: " . $e->getMessage());
     header("Location: ver_empleados.php?error=" . urlencode("Error al cargar datos del empleado."));
     exit;
+}
+
+// Cargar cargos y departamentos dinámicamente
+try {
+    $cargos = Cargo::getAll();
+} catch (PDOException $e) {
+    error_log("Error al cargar cargos: " . $e->getMessage());
+    $cargos = [];
+}
+
+try {
+    $departamentos = Departamento::getAll();
+} catch (PDOException $e) {
+    error_log("Error al cargar departamentos: " . $e->getMessage());
+    $departamentos = [];
 }
 ?>
 <!DOCTYPE html>
@@ -45,7 +63,9 @@ try {
 <body>
     <div class="container">
         <header>
-            <h1>ServiPlus S.A.</h1>
+            <a href="<?= isset($_SESSION['id_empleado']) ? 'ver_empleados.php' : 'login.php' ?>" style="text-decoration: none;">
+                <h1>ServiPlus S.A.</h1>
+            </a>
             <a href="ver_empleados.php" class="btn btn-secondary">Volver al Listado</a>
         </header>
 
@@ -59,11 +79,21 @@ try {
                     </div>
                 <?php endif; ?>
 
-                <form action="../controllers/editar_empleado.php" method="POST">
+                <form action="../controllers/editar_empleado.php" method="POST" enctype="multipart/form-data">
                     <!-- Campo oculto con el ID del empleado a editar -->
-                    <input type="hidden" name="id" value="<?= htmlspecialchars($empleado['id']) ?>">
+                    <input type="hidden" name="id_empleado" value="<?= htmlspecialchars($empleado['id_empleado']) ?>">
                     
                     <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 1rem;">
+                            <?php if (!empty($empleado['foto_ruta'])): ?>
+                                <img src="../<?= htmlspecialchars($empleado['foto_ruta']) ?>" alt="Foto" width="80" style="border-radius: 8px; box-shadow: var(--shadow-sm);">
+                            <?php endif; ?>
+                            <div>
+                                <label for="foto">Actualizar Fotografía (Opcional, .jpg, .jpeg, .png)</label>
+                                <input type="file" id="foto" name="foto" accept=".jpg, .jpeg, .png" style="background: transparent; border: none; padding-left: 0; display: block; margin-top: 0.5rem;">
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label for="nombre_completo">Nombre Completo *</label>
                             <input type="text" id="nombre_completo" name="nombre_completo" value="<?= htmlspecialchars($empleado['nombre_completo']) ?>" required>
@@ -85,22 +115,28 @@ try {
                         </div>
 
                         <div class="form-group">
-                            <label for="cargo">Cargo *</label>
-                            <select id="cargo" name="cargo" required>
-                                <option value="Técnico" <?= $empleado['cargo'] == 'Técnico' ? 'selected' : '' ?>>Técnico</option>
-                                <option value="Administrador" <?= $empleado['cargo'] == 'Administrador' ? 'selected' : '' ?>>Administrador</option>
-                                <option value="Operario" <?= $empleado['cargo'] == 'Operario' ? 'selected' : '' ?>>Operario</option>
-                                <option value="Asistente" <?= $empleado['cargo'] == 'Asistente' ? 'selected' : '' ?>>Asistente</option>
+                            <label for="cargo_id">Cargo *</label>
+                            <select id="cargo_id" name="cargo_id" required>
+                                <option value="">Seleccione...</option>
+                                <?php foreach ($cargos as $cargo): ?>
+                                    <option value="<?= htmlspecialchars($cargo['id_cargo']) ?>" 
+                                        <?= $empleado['cargo_id'] == $cargo['id_cargo'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($cargo['nombre_cargo']) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label for="area">Área *</label>
-                            <select id="area" name="area" required>
-                                <option value="Electricidad" <?= $empleado['area'] == 'Electricidad' ? 'selected' : '' ?>>Electricidad</option>
-                                <option value="Mantenimiento" <?= $empleado['area'] == 'Mantenimiento' ? 'selected' : '' ?>>Mantenimiento</option>
-                                <option value="RRHH" <?= $empleado['area'] == 'RRHH' ? 'selected' : '' ?>>RRHH</option>
-                                <option value="Contabilidad" <?= $empleado['area'] == 'Contabilidad' ? 'selected' : '' ?>>Contabilidad</option>
+                            <label for="departamento_id">Departamento *</label>
+                            <select id="departamento_id" name="departamento_id" required>
+                                <option value="">Seleccione...</option>
+                                <?php foreach ($departamentos as $depto): ?>
+                                    <option value="<?= htmlspecialchars($depto['id_departamento']) ?>"
+                                        <?= $empleado['departamento_id'] == $depto['id_departamento'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($depto['nombre_departamento']) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 

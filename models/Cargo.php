@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/Conexion.php';
+require_once __DIR__ . '/../config/conexion.php';
 
 /**
  * Clase Cargo
@@ -43,7 +43,6 @@ class Cargo {
         $stmt = $db->query($sql);
         return $stmt->fetchAll();
     }
-
     /**
      * Obtener un cargo por su ID
      * 

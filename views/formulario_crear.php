@@ -1,9 +1,32 @@
 <?php
+require_once __DIR__ . '/../config/verificar_sesion.php';
+require_once __DIR__ . '/../config/verificar_permisos.php';
+verificarPermisoAdministrador();
 /**
  * Vista: Formulario de Creación de Empleado
  * Módulo: Empleados (Prioridad 1)
- * Dependencias: Ninguna directa de BD aquí. Envía POST a controllers/crear_empleado.php
+ * Dependencias: models/Cargo.php, models/Departamento.php
+ * Descripción: Carga dinámicamente cargos y departamentos desde la BD
+ *              y envía POST a controllers/crear_empleado.php
  */
+
+require_once __DIR__ . '/../models/Cargo.php';
+require_once __DIR__ . '/../models/Departamento.php';
+
+// Cargar cargos y departamentos dinámicamente desde la BD
+try {
+    $cargos = Cargo::getAll();
+} catch (PDOException $e) {
+    error_log("Error al cargar cargos: " . $e->getMessage());
+    $cargos = [];
+}
+
+try {
+    $departamentos = Departamento::getAll();
+} catch (PDOException $e) {
+    error_log("Error al cargar departamentos: " . $e->getMessage());
+    $departamentos = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -11,14 +34,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuevo Empleado - ServiPlus S.A.</title>
-    <!-- Se asume que el enrutamiento base es la carpeta public/raiz del proyecto -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>ServiPlus S.A.</h1>
+            <a href="<?= isset($_SESSION['id_empleado']) ? 'ver_empleados.php' : 'login.php' ?>" style="text-decoration: none;">
+                <h1>ServiPlus S.A.</h1>
+            </a>
             <a href="ver_empleados.php" class="btn btn-secondary">Ver Empleados</a>
         </header>
 
@@ -32,8 +56,13 @@
                     </div>
                 <?php endif; ?>
 
-                <form action="../controllers/crear_empleado.php" method="POST">
+                <form action="../controllers/crear_empleado.php" method="POST" enctype="multipart/form-data">
                     <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="foto">Fotografía (Opcional, .jpg, .jpeg, .png)</label>
+                            <input type="file" id="foto" name="foto" accept=".jpg, .jpeg, .png" style="background: transparent; border: none; padding-left: 0;">
+                        </div>
+
                         <div class="form-group">
                             <label for="nombre_completo">Nombre Completo *</label>
                             <input type="text" id="nombre_completo" name="nombre_completo" required>
@@ -50,40 +79,47 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="password">Contraseña *</label>
+                            <input type="password" id="password" name="password" >
+                        </div>
+
+                        <div class="form-group">
                             <label for="telefono">Teléfono</label>
                             <input type="text" id="telefono" name="telefono">
                         </div>
 
                         <div class="form-group">
-                            <label for="cargo">Cargo *</label>
-                            <select id="cargo" name="cargo" required>
+                            <label for="cargo_id">Cargo *</label>
+                            <select id="cargo_id" name="cargo_id" required>
                                 <option value="">Seleccione...</option>
-                                <option value="Técnico">Técnico</option>
-                                <option value="Administrador">Administrador</option>
-                                <option value="Operario">Operario</option>
-                                <option value="Asistente">Asistente</option>
+                                <?php foreach ($cargos as $cargo): ?>
+                                    <option value="<?= htmlspecialchars($cargo['id_cargo']) ?>">
+                                        <?= htmlspecialchars($cargo['nombre_cargo']) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label for="area">Área *</label>
-                            <select id="area" name="area" required>
+                            <label for="departamento_id">Departamento *</label>
+                            <select id="departamento_id" name="departamento_id" required>
                                 <option value="">Seleccione...</option>
-                                <option value="Electricidad">Electricidad</option>
-                                <option value="Mantenimiento">Mantenimiento</option>
-                                <option value="RRHH">RRHH</option>
-                                <option value="Contabilidad">Contabilidad</option>
+                                <?php foreach ($departamentos as $depto): ?>
+                                    <option value="<?= htmlspecialchars($depto['id_departamento']) ?>">
+                                        <?= htmlspecialchars($depto['nombre_departamento']) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="fecha_ingreso">Fecha de Ingreso *</label>
-                            <input type="date" id="fecha_ingreso" name="fecha_ingreso" required>
+                            <input type="date" id="fecha_ingreso" name="fecha_ingreso" >
                         </div>
 
                         <div class="form-group">
                             <label for="salario_base">Salario Base *</label>
-                            <input type="number" step="0.01" min="0" id="salario_base" name="salario_base" required>
+                            <input type="number" step="0.01" min="0" id="salario_base" name="salario_base" >
                         </div>
                     </div>
 

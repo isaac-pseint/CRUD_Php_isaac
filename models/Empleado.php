@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/Conexion.php';
+require_once __DIR__ . '/../config/conexion.php';
 
 /**
  * Clase Empleado
@@ -71,6 +71,23 @@ class Empleado {
     }
 
     /**
+     * Obtener todos los empleados activos, incluyendo nombres de cargo y departamento
+     * 
+     * @return array
+     */
+    public static function getAllActivos() {
+        $db = Conexion::conectar();
+        $sql = "SELECT e.*, c.nombre_cargo, d.nombre_departamento 
+                FROM empleados e
+                INNER JOIN cargo c ON e.cargo_id = c.id_cargo
+                INNER JOIN departamento d ON e.departamento_id = d.id_departamento
+                WHERE e.estado = 'activo'
+                ORDER BY e.nombre_completo ASC";
+        $stmt = $db->query($sql);
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Obtener un empleado por su ID
      * 
      * @param int $id
@@ -103,6 +120,24 @@ class Empleado {
                 WHERE e.correo = :correo";
         $stmt = $db->prepare($sql);
         $stmt->execute(['correo' => trim(strtolower($correo))]);
+        return $stmt->fetch();
+    }
+
+    /**
+     * Obtener un empleado por su Documento (útil para autenticación)
+     * 
+     * @param string $documento
+     * @return array|false
+     */
+    public static function getByDocumento($documento) {
+        $db = Conexion::conectar();
+        $sql = "SELECT e.*, c.nombre_cargo, d.nombre_departamento 
+                FROM empleados e
+                INNER JOIN cargo c ON e.cargo_id = c.id_cargo
+                INNER JOIN departamento d ON e.departamento_id = d.id_departamento
+                WHERE e.numero_documento = :documento";
+        $stmt = $db->prepare($sql);
+        $stmt->execute(['documento' => trim($documento)]);
         return $stmt->fetch();
     }
 
