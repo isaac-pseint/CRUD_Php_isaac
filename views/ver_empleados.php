@@ -39,8 +39,12 @@ try {
 
         <aside class="sidebar">
             <div class="sidebar-user">
-                <div class="sidebar-avatar">
-                    <?= htmlspecialchars(strtoupper(substr($_SESSION['nombre_completo'] ?? 'U', 0, 1))) ?>
+                <div class="sidebar-avatar" style="overflow: hidden;">
+                    <?php if (!empty($_SESSION['foto_ruta'])): ?>
+                        <img src="../<?= htmlspecialchars($_SESSION['foto_ruta']) ?>" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover;">
+                    <?php else: ?>
+                        <?= htmlspecialchars(strtoupper(substr($_SESSION['nombre_completo'] ?? 'U', 0, 1))) ?>
+                    <?php endif; ?>
                 </div>
                 <div class="sidebar-user-name"><?= htmlspecialchars($_SESSION['nombre_completo']) ?></div>
                 <div class="sidebar-user-role"><?= $es_admin ? 'Administrador' : 'Empleado' ?></div>

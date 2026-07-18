@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['nombre_completo'] = $empleado['nombre_completo'];
                 $_SESSION['cargo_id'] = $empleado['cargo_id'];
                 $_SESSION['departamento_id'] = $empleado['departamento_id'];
+                $_SESSION['foto_ruta'] = $empleado['foto_ruta'];
 
                 // Redirigir a la vista principal
                 header("Location: ../views/ver_empleados.php");

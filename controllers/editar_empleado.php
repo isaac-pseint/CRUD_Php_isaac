@@ -125,6 +125,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $empleado->guardar();
 
+        // Si el usuario editado es el mismo logueado, actualizar la sesión
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (isset($_SESSION['id_empleado']) && $_SESSION['id_empleado'] == $id) {
+            $_SESSION['nombre_completo'] = $nombre_completo;
+            if ($foto_ruta) {
+                $_SESSION['foto_ruta'] = $foto_ruta;
+            }
+        }
+
         header("Location: ../views/ver_empleados.php?success=actualizado");
         exit;
     } catch (PDOException $e) {
